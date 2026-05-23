@@ -147,20 +147,42 @@ jobs:
           YAML
           fi
 
+      - name: Pre-update workdir snapshot
+        run: |
+          echo "=== metadata/ ==="
+          ls -la metadata/ 2>/dev/null || echo "(no metadata dir)"
+          echo "=== repo/ ==="
+          ls -la repo/ | head -15
+          echo "=== config.yml head ==="
+          head -10 config.yml
+
       - name: Run fdroid update
         # `set -o pipefail` is critical — without it, a `tail -30` would mask a
         # fdroid update failure (the pipe's exit code defaults to tail's
         # which is always 0). We also drop the tail wrapping for the
         # `--pretty` output and rely on GitHub Actions to truncate the log
-        # naturally if it grows too long. Full output is more useful than a
-        # silently-failing summary.
+        # naturally if it grows too long.
+        #
+        # NOTE on `--delete-unknown` (DROPPED) : the flag removes APKs whose
+        # package is not tracked in any metadata. In our incremental flow,
+        # the metadata file is written one step earlier in the same job — if
+        # fdroidserver's scan-then-delete order ever races the metadata
+        # creation, the APK we just downloaded gets purged. Safer to skip
+        # the flag : the only downside is `repo/` accumulating old APKs,
+        # which we mitigate via the `archive_older: 5` in config.yml that
+        # rotates anything past the 5th-most-recent into `archive/`.
         shell: bash
         run: |
           set -euo pipefail
-          # `fdroid update` reads config.yml from the working directory.
-          # `--delete-unknown` removes APKs no longer referenced by metadata,
-          # keeping `repo/` lean even after many releases.
-          fdroid update --create-metadata --delete-unknown --pretty
+          fdroid update --create-metadata --pretty
+
+      - name: Post-update workdir snapshot
+        if: always()
+        run: |
+          echo "=== metadata/ ==="
+          ls -la metadata/ 2>/dev/null || echo "(no metadata dir)"
+          echo "=== repo/ ==="
+          ls -la repo/ | head -20
 
       - name: Clean keystore from runner
         if: always()
