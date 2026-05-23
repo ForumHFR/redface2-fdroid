@@ -104,6 +104,36 @@ jobs:
             --pattern "$APK" \
             --dir repo/
 
+      - name: Ensure app metadata exists
+        # fdroidserver 2.4+ refuses to generate the index if `repo/categories.txt`
+        # is zero-size (or if no app declares a category). The metadata file
+        # below populates both — it's idempotent and only written once per
+        # workflow run (subsequent runs are no-ops if the file already
+        # exists). Manual edits to the metadata are preserved on re-runs
+        # since we use `[[ -f ]]` gate.
+        run: |
+          mkdir -p metadata
+          if [[ ! -f metadata/fr.forumhfr.redface2.yml ]]; then
+            cat > metadata/fr.forumhfr.redface2.yml <<'YAML'
+          Categories:
+            - Internet
+          License: GPL-3.0-only
+          AuthorName: ForumHFR
+          WebSite: https://github.com/ForumHFR/redface2
+          SourceCode: https://github.com/ForumHFR/redface2
+          IssueTracker: https://github.com/ForumHFR/redface2/issues
+          Changelog: https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md
+          Name: Redface 2
+          Summary: Client Android moderne du forum hardware.fr
+          Description: |-
+              Redface 2 est un client Android natif pour forum.hardware.fr,
+              écrit en Kotlin avec Jetpack Compose. Lecture des topics,
+              écriture (reply, quote, édition), recherche, drapeaux.
+              Conçu pour remplacer l'app Redface historique sans dépendance
+              Firebase ni Play Services.
+          YAML
+          fi
+
       - name: Run fdroid update
         # `set -o pipefail` is critical — without it, a `tail -30` would mask a
         # fdroid update failure (the pipe's exit code defaults to tail's
