@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1779545124000,
+    "timestamp": 1779549534000,
     "version": 20002,
     "name": "Redface 2 F-Droid repository",
     "icon": "icon.png",
@@ -18,7 +18,7 @@
         "Internet"
       ],
       "changelog": "https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md",
-      "suggestedVersionCode": "52",
+      "suggestedVersionCode": "55",
       "description": "Redface 2 est un client Android natif pour forum.hardware.fr,\n\u00e9crit en Kotlin avec Jetpack Compose. Lecture des topics,\n\u00e9criture (reply, quote, \u00e9dition), recherche, drapeaux.\nCon\u00e7u pour remplacer l'app Redface historique sans d\u00e9pendance\nFirebase ni Play Services.",
       "issueTracker": "https://github.com/ForumHFR/redface2/issues",
       "license": "GPL-3.0-only",
@@ -28,11 +28,41 @@
       "webSite": "https://github.com/ForumHFR/redface2",
       "added": 1779544675000,
       "packageName": "fr.forumhfr.redface2",
-      "lastUpdated": 1779544675000
+      "lastUpdated": 1779549530000
     }
   ],
   "packages": {
     "fr.forumhfr.redface2": [
+      {
+        "added": 1779549530000,
+        "apkName": "redface2-v55-8691c69.apk",
+        "hash": "c46da3a45d31f3745104f340cebd6a150b128ae75e408cf238cb82b8e3852115",
+        "hashType": "sha256",
+        "minSdkVersion": 29,
+        "nativecode": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86",
+          "x86_64"
+        ],
+        "packageName": "fr.forumhfr.redface2",
+        "sig": "c36b0d8cb6d5fe8a493ad8cc6adba68a",
+        "signer": "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a",
+        "size": 29911018,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "fr.forumhfr.redface2.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ],
+          [
+            "android.permission.INTERNET",
+            null
+          ]
+        ],
+        "versionCode": 55,
+        "versionName": "0.3.15"
+      },
       {
         "added": 1779544675000,
         "apkName": "redface2-v52-5947ce4.apk",
