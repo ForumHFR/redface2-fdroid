@@ -64,12 +64,14 @@ jobs:
           KEY_ALIAS_VALUE: ${{ secrets.FDROID_KEY_ALIAS }}
         run: |
           cd /tmp/fdroid-bootstrap
-          # Rewrite config.yml with the public-facing repo URL + name + description.
-          # We deliberately DO NOT embed `keystorepass` / `keypass` in config.yml :
-          # `fdroid update` reads them from the KEYSTOREPASS / KEYPASS env vars
-          # natively, so the file stays free of secret references altogether.
-          # `repo_keyalias` is hardcoded from the secret value, not via env-var
-          # indirection (no risk of leak since the alias is essentially public).
+          # config.yml never carries the password in clear — it uses fdroidserver's
+          # !ENV tag indirection, which resolves to the runner env var at parse
+          # time. The KEYSTOREPASS / KEYPASS env vars are set on the
+          # downstream `fdroid update` step from the GH secret. config.yml itself
+          # is also never committed to gh-pages (only `repo/` is pushed).
+          # `repo_keyalias` is the alias only (essentially public) ; safe to inline.
+          # The dollar-curly indirection on KEY_ALIAS_VALUE is shell-substituted
+          # (heredoc without quotes), the !ENV tag is the fdroidserver mechanism.
           cat > config.yml <<YAML
           repo_url: https://forumhfr.github.io/redface2-fdroid/repo
           repo_name: Redface 2 F-Droid repository
@@ -83,17 +85,20 @@ jobs:
           archive_description: Anciennes versions de Redface 2.
           keystore: fdroid.keystore
           repo_keyalias: ${KEY_ALIAS_VALUE}
+          keystorepass: !ENV \${KEYSTOREPASS}
+          keypass: !ENV \${KEYPASS}
           YAML
 
       - name: Run fdroid update (empty index)
         env:
+          # Consumed via the !ENV tag indirection in config.yml.
           KEYSTOREPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
           KEYPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
         run: |
           cd /tmp/fdroid-bootstrap
           mkdir -p repo metadata
           fdroid update --create-metadata --pretty 2>&1 | tail -20
+          ls -la repo/ | head -20
 
       - name: Capture fingerprint for the user-facing docs
         run: |
