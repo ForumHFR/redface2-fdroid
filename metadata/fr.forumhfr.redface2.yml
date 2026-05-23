@@ -1,0 +1,16 @@
+Categories:
+  - Internet
+License: GPL-3.0-only
+AuthorName: ForumHFR
+WebSite: https://github.com/ForumHFR/redface2
+SourceCode: https://github.com/ForumHFR/redface2
+IssueTracker: https://github.com/ForumHFR/redface2/issues
+Changelog: https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md
+Name: Redface 2
+Summary: Client Android moderne du forum hardware.fr
+Description: |-
+    Redface 2 est un client Android natif pour forum.hardware.fr,
+    écrit en Kotlin avec Jetpack Compose. Lecture des topics,
+    écriture (reply, quote, édition), recherche, drapeaux.
+    Conçu pour remplacer l'app Redface historique sans dépendance
+    Firebase ni Play Services.
