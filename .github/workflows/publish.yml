@@ -104,6 +104,19 @@ jobs:
             --pattern "$APK" \
             --dir repo/
 
+      - name: Seed categories.txt if empty
+        # fdroidserver 2.4+ refuses to run if `repo/categories.txt` is
+        # zero-size — even though it's supposed to regenerate the file
+        # from app metadata. Bootstrap created it empty, so we pre-seed it
+        # with the canonical category for Redface 2 to break the chicken-
+        # and-egg. Subsequent fdroid update calls overwrite it with the
+        # correct content derived from metadata YAML files.
+        run: |
+          if [[ ! -s repo/categories.txt ]]; then
+            mkdir -p repo
+            echo "Internet" > repo/categories.txt
+          fi
+
       - name: Ensure app metadata exists
         # fdroidserver 2.4+ refuses to generate the index if `repo/categories.txt`
         # is zero-size (or if no app declares a category). The metadata file
