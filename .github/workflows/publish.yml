@@ -193,14 +193,25 @@ jobs:
 
       - name: Commit and push gh-pages
         run: |
+          set -euo pipefail
           git config user.email "fdroid-bot@users.noreply.github.com"
           git config user.name "redface2-fdroid-publisher"
-          git add repo/ stats/ 2>/dev/null || true
-          # Avoid an empty commit if fdroid update produced no diff (e.g. the
-          # APK was already indexed by a prior run on the same tag).
+          echo "=== git status BEFORE add ==="
+          git status -s
+          echo "=== git ls-files repo/ (HEAD tracked) ==="
+          git ls-files repo/ | head -10
+          # Force-add repo/ (and metadata/, in case we want it tracked later).
+          # `2>/dev/null || true` was masking failures — drop it.
+          git add -A repo/
+          git add -A metadata/ 2>/dev/null || true
+          echo "=== git status AFTER add ==="
+          git status -s | head -15
+          echo "=== diff --cached --stat ==="
+          git diff --cached --stat | tail -5
           if git diff --cached --quiet; then
             echo "No changes to commit — index unchanged."
           else
             git commit -m "fdroid: publish ${{ steps.inputs.outputs.tag }}"
             git push origin gh-pages
+            echo "Pushed gh-pages."
           fi
