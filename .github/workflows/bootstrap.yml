@@ -60,30 +60,29 @@ jobs:
             --distinguished-name "CN=redface2-fdroid, O=ForumHFR, OU=Distribution, L=Paris, C=FR"
 
       - name: Configure repo metadata for production
+        env:
+          KEY_ALIAS_VALUE: ${{ secrets.FDROID_KEY_ALIAS }}
         run: |
           cd /tmp/fdroid-bootstrap
-          # Rewrite config.yml to use env-var refs for passwords (so the file
-          # itself never contains the secret) and set the public-facing repo
-          # URL + name + description.
-          cat > config.yml <<'YAML'
+          # Rewrite config.yml with the public-facing repo URL + name + description.
+          # We deliberately DO NOT embed `keystorepass` / `keypass` in config.yml :
+          # `fdroid update` reads them from the KEYSTOREPASS / KEYPASS env vars
+          # natively, so the file stays free of secret references altogether.
+          # `repo_keyalias` is hardcoded from the secret value, not via env-var
+          # indirection (no risk of leak since the alias is essentially public).
+          cat > config.yml <<YAML
           repo_url: https://forumhfr.github.io/redface2-fdroid/repo
           repo_name: Redface 2 F-Droid repository
           repo_description: |-
             Dépôt F-Droid pour Redface 2, le client Android moderne de
             forum.hardware.fr. APKs signés avec la clé upload d'origine ;
             mises à jour publiées automatiquement à chaque release upstream.
-          repo_icon: ../icon.png
           archive_older: 5
           archive_url: https://forumhfr.github.io/redface2-fdroid/archive
           archive_name: Redface 2 archive
           archive_description: Anciennes versions de Redface 2.
           keystore: fdroid.keystore
-          repo_keyalias:
-            env: KEY_ALIAS
-          keystorepass:
-            env: KEYSTORE_PASS
-          keypass:
-            env: KEYSTORE_PASS
+          repo_keyalias: ${KEY_ALIAS_VALUE}
           YAML
 
       - name: Run fdroid update (empty index)
