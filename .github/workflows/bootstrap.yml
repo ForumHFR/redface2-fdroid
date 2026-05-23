@@ -45,15 +45,18 @@ jobs:
 
       - name: Initialize F-Droid repo structure
         env:
-          KEYSTORE_PASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEYSTOREPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEYPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
         run: |
           cd /tmp/fdroid-bootstrap
-          fdroid init \
+          # `fdroid init` 2.4+ reads passwords from KEYSTOREPASS / KEYPASS env vars,
+          # NOT from CLI flags (they were removed). The `--no-prompt` flag prevents
+          # the keystore-creation interactive prompt since we already pre-generated
+          # the keystore externally.
+          fdroid init --no-prompt \
             --keystore fdroid.keystore \
             --repo-keyalias "$KEY_ALIAS" \
-            --keystorepass "$KEYSTORE_PASS" \
-            --keypass "$KEYSTORE_PASS" \
             --distinguished-name "CN=redface2-fdroid, O=ForumHFR, OU=Distribution, L=Paris, C=FR"
 
       - name: Configure repo metadata for production
@@ -85,7 +88,8 @@ jobs:
 
       - name: Run fdroid update (empty index)
         env:
-          KEYSTORE_PASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEYSTOREPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEYPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
         run: |
           cd /tmp/fdroid-bootstrap

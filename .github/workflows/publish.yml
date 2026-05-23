@@ -66,15 +66,14 @@ jobs:
 
       - name: Run fdroid update
         env:
-          KEYSTORE_PASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEYSTOREPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEYPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
         run: |
           # `fdroid update` reads config.yml from the working directory ; the
           # keystore path is hardcoded to `fdroid.keystore` (cf. config.yml).
           # `--delete-unknown` removes APKs no longer referenced by metadata,
           # keeping `repo/` lean even after many releases.
-          export KEYSTOREPASS="$KEYSTORE_PASS"
-          export KEYPASS="$KEYSTORE_PASS"
           fdroid update --create-metadata --delete-unknown --pretty 2>&1 | tail -30
 
       - name: Clean keystore from runner
