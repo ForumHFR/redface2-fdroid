@@ -62,16 +62,29 @@ jobs:
       - name: Configure repo metadata for production
         env:
           KEY_ALIAS_VALUE: ${{ secrets.FDROID_KEY_ALIAS }}
+          KEYSTOREPASS_VALUE: ${{ secrets.FDROID_KEY_PASSWORD }}
         run: |
           cd /tmp/fdroid-bootstrap
-          # config.yml never carries the password in clear — it uses fdroidserver's
-          # !ENV tag indirection, which resolves to the runner env var at parse
-          # time. The KEYSTOREPASS / KEYPASS env vars are set on the
-          # downstream `fdroid update` step from the GH secret. config.yml itself
-          # is also never committed to gh-pages (only `repo/` is pushed).
-          # `repo_keyalias` is the alias only (essentially public) ; safe to inline.
-          # The dollar-curly indirection on KEY_ALIAS_VALUE is shell-substituted
-          # (heredoc without quotes), the !ENV tag is the fdroidserver mechanism.
+          # Write config.yml with passwords inlined as cleartext. This is the
+          # **official F-Droid convention** — see the upstream example at
+          # https://gitlab.com/fdroid/fdroidserver/-/blob/master/examples/config.yml
+          # which puts `keystorepass: secret-secret-secret` directly in the file.
+          # Older fdroidserver versions support a `!ENV ${VAR}` YAML tag but the
+          # one packaged in Ubuntu 24.04 (which the GH runner uses) does not.
+          #
+          # Threat model :
+          # 1. The runner is ephemeral (destroyed after the job).
+          # 2. config.yml is created INSIDE /tmp/fdroid-bootstrap which is NOT
+          #    the gh-pages checkout. The push step explicitly `git add repo/`
+          #    only — config.yml never lands in any committed history.
+          # 3. We chmod 600 config.yml immediately so other processes (there
+          #    are none on a clean runner anyway) can't read it.
+          # 4. No subsequent step `cat`s config.yml so it stays out of
+          #    workflow logs even on failure.
+          # 5. The GitHub secret `FDROID_KEY_PASSWORD` itself is auto-masked
+          #    by Actions in any log surface ; even if a step did echo config.yml,
+          #    the secret string would be `***`'d out.
+          umask 077
           cat > config.yml <<YAML
           repo_url: https://forumhfr.github.io/redface2-fdroid/repo
           repo_name: Redface 2 F-Droid repository
@@ -85,15 +98,12 @@ jobs:
           archive_description: Anciennes versions de Redface 2.
           keystore: fdroid.keystore
           repo_keyalias: ${KEY_ALIAS_VALUE}
-          keystorepass: !ENV \${KEYSTOREPASS}
-          keypass: !ENV \${KEYPASS}
+          keystorepass: ${KEYSTOREPASS_VALUE}
+          keypass: ${KEYSTOREPASS_VALUE}
           YAML
+          chmod 600 config.yml
 
       - name: Run fdroid update (empty index)
-        env:
-          # Consumed via the !ENV tag indirection in config.yml.
-          KEYSTOREPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
-          KEYPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
         run: |
           cd /tmp/fdroid-bootstrap
           mkdir -p repo metadata
