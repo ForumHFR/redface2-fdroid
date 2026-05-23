@@ -99,10 +99,15 @@ jobs:
           APK: ${{ steps.inputs.outputs.apk_filename }}
         run: |
           mkdir -p repo
+          # `--clobber` makes the step idempotent on re-runs : if a previous
+          # job left an APK with the same name, we overwrite it. Bytes are
+          # identical (same release asset, byte-pinned by tag) so this is
+          # not destructive.
           gh release download "$TAG" \
             --repo ForumHFR/redface2 \
             --pattern "$APK" \
-            --dir repo/
+            --dir repo/ \
+            --clobber
 
       - name: Seed categories.txt if empty
         # fdroidserver 2.4+ refuses to run if `repo/categories.txt` is
