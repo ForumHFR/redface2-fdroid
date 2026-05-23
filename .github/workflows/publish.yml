@@ -122,6 +122,17 @@ jobs:
             echo "Internet" > repo/categories.txt
           fi
 
+      - name: Scrub phantom skeleton metadata (legacy)
+        # Old runs with `--create-metadata` left `metadata/<64-hex>.yml`
+        # skeletons on gh-pages. Without removing them BEFORE the new
+        # fdroid update, they get re-read and the phantom package
+        # resurfaces in the new index. Run this scrub before the metadata
+        # creation step so the canonical metadata is the only one fdroid
+        # update sees.
+        run: |
+          find metadata -maxdepth 1 -type f -name '????????????????????????????????????????????????????????????????.yml' \
+            -print -delete || true
+
       - name: Ensure app metadata exists
         # fdroidserver 2.4+ refuses to generate the index if `repo/categories.txt`
         # is zero-size (or if no app declares a category). The metadata file
@@ -178,15 +189,6 @@ jobs:
         run: |
           set -euo pipefail
           fdroid update --pretty
-
-      - name: Clean phantom skeleton metadata
-        # Defensive net : if any future run accidentally re-introduces
-        # `--create-metadata` or fdroid update auto-generates a skeleton for
-        # another reason, the leftover `metadata/<64-hex-chars>.yml` file
-        # would re-pollute the index. Scrub them before committing.
-        run: |
-          find metadata -maxdepth 1 -type f -name '????????????????????????????????????????????????????????????????.yml' \
-            -print -delete || true
 
       - name: Post-update workdir snapshot
         if: always()
