@@ -157,24 +157,31 @@ jobs:
           head -10 config.yml
 
       - name: Run fdroid update
-        # `set -o pipefail` is critical — without it, a `tail -30` would mask a
-        # fdroid update failure (the pipe's exit code defaults to tail's
-        # which is always 0). We also drop the tail wrapping for the
-        # `--pretty` output and rely on GitHub Actions to truncate the log
-        # naturally if it grows too long.
-        #
-        # NOTE on `--delete-unknown` (DROPPED) : the flag removes APKs whose
-        # package is not tracked in any metadata. In our incremental flow,
-        # the metadata file is written one step earlier in the same job — if
-        # fdroidserver's scan-then-delete order ever races the metadata
-        # creation, the APK we just downloaded gets purged. Safer to skip
-        # the flag : the only downside is `repo/` accumulating old APKs,
-        # which we mitigate via the `archive_older: 5` in config.yml that
-        # rotates anything past the 5th-most-recent into `archive/`.
+        # NOTE on dropped flags :
+        # - `--delete-unknown` : removes APKs whose package is not tracked in
+        #   any metadata. In our incremental flow, the metadata file is
+        #   written one step earlier in the same job — if fdroidserver's
+        #   scan-then-delete order races, the just-downloaded APK gets
+        #   purged. Safer to skip.
+        # - `--create-metadata` : generates skeleton metadata for any APK
+        #   without a matching metadata file. Even when an explicit metadata
+        #   file matches (our case), it ALSO creates a skeleton keyed by the
+        #   APK's SHA256 hash, producing a "phantom" package in the index
+        #   pointing at `/categories.txt`. We pre-create the canonical
+        #   metadata file, so this flag is never needed.
         shell: bash
         run: |
           set -euo pipefail
-          fdroid update --create-metadata --pretty
+          fdroid update --pretty
+
+      - name: Clean phantom skeleton metadata
+        # Defensive net : if any future run accidentally re-introduces
+        # `--create-metadata` or fdroid update auto-generates a skeleton for
+        # another reason, the leftover `metadata/<64-hex-chars>.yml` file
+        # would re-pollute the index. Scrub them before committing.
+        run: |
+          find metadata -maxdepth 1 -type f -name '????????????????????????????????????????????????????????????????.yml' \
+            -print -delete || true
 
       - name: Post-update workdir snapshot
         if: always()
