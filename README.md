@@ -8,8 +8,8 @@ le client Android moderne du forum Hardware.fr.
 Ajoutez ce dépôt à votre client F-Droid (F-Droid, Neo Store, Foxy Droid, etc.) :
 
 ```
-URL    : https://forumhfr.github.io/redface2-fdroid/
-Fingerprint : (rempli après le premier build)
+URL         : https://forumhfr.github.io/redface2-fdroid/repo
+Fingerprint : B0D265D6783596834715E6AB8C54C4A94A2642F6AD15E279F948A58DF174C8AB
 ```
 
 Voir la [documentation d'installation côté `redface2`](https://github.com/ForumHFR/redface2/blob/main/docs/guides/installation.md)
