@@ -1,0 +1,99 @@
+name: Publish APK to F-Droid repo
+
+# Listens for a `repository_dispatch` event of type `rf2_release` fired by the
+# `redface2` release workflow when a new `app-v*` tag has been built. The
+# payload carries the tag name + the asset filename so we can download the
+# matching APK from `redface2`'s GitHub Release without doing API discovery.
+on:
+  repository_dispatch:
+    types: [rf2_release]
+  # Manual trigger to allow a one-shot republish without re-tagging redface2.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'redface2 release tag (e.g. app-v52)'
+        required: true
+      apk_filename:
+        description: 'APK asset filename in the release'
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # to push to gh-pages
+    steps:
+      - name: Resolve inputs
+        id: inputs
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "tag=${{ github.event.client_payload.tag }}" >> "$GITHUB_OUTPUT"
+            echo "apk_filename=${{ github.event.client_payload.apk_filename }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+            echo "apk_filename=${{ github.event.inputs.apk_filename }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Install fdroidserver
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            fdroidserver default-jre-headless apksigner
+
+      - name: Restore F-Droid keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.FDROID_KEYSTORE_B64 }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > fdroid.keystore
+          chmod 600 fdroid.keystore
+
+      - name: Download APK from redface2 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.inputs.outputs.tag }}
+          APK: ${{ steps.inputs.outputs.apk_filename }}
+        run: |
+          mkdir -p repo
+          gh release download "$TAG" \
+            --repo ForumHFR/redface2 \
+            --pattern "$APK" \
+            --dir repo/
+
+      - name: Run fdroid update
+        env:
+          KEYSTORE_PASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
+        run: |
+          # `fdroid update` reads config.yml from the working directory ; the
+          # keystore path is hardcoded to `fdroid.keystore` (cf. config.yml).
+          # `--delete-unknown` removes APKs no longer referenced by metadata,
+          # keeping `repo/` lean even after many releases.
+          export KEYSTOREPASS="$KEYSTORE_PASS"
+          export KEYPASS="$KEYSTORE_PASS"
+          fdroid update --create-metadata --delete-unknown --pretty 2>&1 | tail -30
+
+      - name: Clean keystore from runner
+        if: always()
+        run: |
+          # Defensive — the runner is ephemeral but we don't want the keystore
+          # surviving a step failure on a re-used runner image.
+          shred -uvz fdroid.keystore || rm -f fdroid.keystore
+
+      - name: Commit and push gh-pages
+        run: |
+          git config user.email "fdroid-bot@users.noreply.github.com"
+          git config user.name "redface2-fdroid-publisher"
+          git add repo/ stats/ 2>/dev/null || true
+          # Avoid an empty commit if fdroid update produced no diff (e.g. the
+          # APK was already indexed by a prior run on the same tag).
+          if git diff --cached --quiet; then
+            echo "No changes to commit — index unchanged."
+          else
+            git commit -m "fdroid: publish ${{ steps.inputs.outputs.tag }}"
+            git push origin gh-pages
+          fi

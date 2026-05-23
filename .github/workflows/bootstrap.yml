@@ -1,0 +1,128 @@
+name: Bootstrap gh-pages with initial F-Droid index
+
+# One-shot manual workflow that initializes the `gh-pages` orphan branch with an
+# empty F-Droid index. After this runs successfully once, `publish.yml` takes
+# over for every subsequent release of `redface2`.
+#
+# Idempotent : if `gh-pages` already exists, the workflow refuses to overwrite
+# it. Delete the branch manually first if you really want to rebuild from
+# scratch.
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Refuse to overwrite an existing gh-pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git ls-remote --exit-code --heads \
+              https://github.com/${{ github.repository }}.git gh-pages >/dev/null 2>&1; then
+            echo "::error::gh-pages already exists. Delete it manually before re-running bootstrap."
+            exit 1
+          fi
+
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Install fdroidserver
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            fdroidserver default-jre-headless apksigner
+
+      - name: Restore F-Droid keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.FDROID_KEYSTORE_B64 }}
+        run: |
+          mkdir -p /tmp/fdroid-bootstrap && cd /tmp/fdroid-bootstrap
+          echo "$KEYSTORE_B64" | base64 -d > fdroid.keystore
+          chmod 600 fdroid.keystore
+
+      - name: Initialize F-Droid repo structure
+        env:
+          KEYSTORE_PASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
+        run: |
+          cd /tmp/fdroid-bootstrap
+          fdroid init \
+            --keystore fdroid.keystore \
+            --repo-keyalias "$KEY_ALIAS" \
+            --keystorepass "$KEYSTORE_PASS" \
+            --keypass "$KEYSTORE_PASS" \
+            --distinguished-name "CN=redface2-fdroid, O=ForumHFR, OU=Distribution, L=Paris, C=FR"
+
+      - name: Configure repo metadata for production
+        run: |
+          cd /tmp/fdroid-bootstrap
+          # Rewrite config.yml to use env-var refs for passwords (so the file
+          # itself never contains the secret) and set the public-facing repo
+          # URL + name + description.
+          cat > config.yml <<'YAML'
+          repo_url: https://forumhfr.github.io/redface2-fdroid/repo
+          repo_name: Redface 2 F-Droid repository
+          repo_description: |-
+            Dépôt F-Droid pour Redface 2, le client Android moderne de
+            forum.hardware.fr. APKs signés avec la clé upload d'origine ;
+            mises à jour publiées automatiquement à chaque release upstream.
+          repo_icon: ../icon.png
+          archive_older: 5
+          archive_url: https://forumhfr.github.io/redface2-fdroid/archive
+          archive_name: Redface 2 archive
+          archive_description: Anciennes versions de Redface 2.
+          keystore: fdroid.keystore
+          repo_keyalias:
+            env: KEY_ALIAS
+          keystorepass:
+            env: KEYSTORE_PASS
+          keypass:
+            env: KEYSTORE_PASS
+          YAML
+
+      - name: Run fdroid update (empty index)
+        env:
+          KEYSTORE_PASS: ${{ secrets.FDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
+        run: |
+          cd /tmp/fdroid-bootstrap
+          mkdir -p repo metadata
+          fdroid update --create-metadata --pretty 2>&1 | tail -20
+
+      - name: Capture fingerprint for the user-facing docs
+        run: |
+          cd /tmp/fdroid-bootstrap
+          # `index-v2.json` carries the SHA-256 fingerprint of the signing cert
+          # under `repo.signer`. Surface it in the workflow log so we can copy
+          # it into the README + redface2's installation guide.
+          python3 -c "
+          import json, pathlib
+          idx = json.loads(pathlib.Path('repo/index-v2.json').read_text())
+          fp = idx['repo'].get('signer', {}).get('signingCertSha256', 'NOT FOUND')
+          print('===== F-DROID REPO FINGERPRINT =====')
+          print(fp)
+          print('=====================================')
+          "
+
+      - name: Push initial gh-pages
+        run: |
+          cd /tmp/fdroid-bootstrap
+          # Create a fresh git repo for the F-Droid content + push it as a
+          # NEW branch `gh-pages`. We're not overwriting an existing remote
+          # branch (the pre-flight step bailed out if one existed), so this
+          # is a regular push, not a force-push.
+          git init -b gh-pages
+          git config user.email "fdroid-bot@users.noreply.github.com"
+          git config user.name "redface2-fdroid-publisher"
+          git add repo/
+          git commit -m "fdroid: bootstrap initial index"
+          git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push origin gh-pages
+          echo "gh-pages bootstrapped. Activate GitHub Pages on this branch via repo settings."
+
+      - name: Clean keystore
+        if: always()
+        run: shred -uvz /tmp/fdroid-bootstrap/fdroid.keystore 2>/dev/null || true
