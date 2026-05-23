@@ -29,12 +29,19 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
 
-      - name: Install fdroidserver
+      - name: Install fdroidserver from PyPI
+        # Same rationale as in `publish.yml` : Ubuntu 24.04's fdroidserver 2.2.1
+        # bundles an old androguard that chokes on AGP 9.x APKs. We install the
+        # current PyPI version (2.4+) into a venv to bypass PEP 668.
         run: |
           sudo apt-get update -qq
-          # default-jdk-headless brings jarsigner ; the -jre- variant doesn't.
           sudo apt-get install -y --no-install-recommends \
-            fdroidserver default-jdk-headless apksigner
+            default-jdk-headless apksigner
+          python3 -m venv /opt/fdroid-venv
+          /opt/fdroid-venv/bin/pip install --quiet --upgrade pip
+          /opt/fdroid-venv/bin/pip install --quiet fdroidserver
+          sudo ln -s /opt/fdroid-venv/bin/fdroid /usr/local/bin/fdroid
+          fdroid --version | head -1
 
       - name: Restore F-Droid keystore
         env:

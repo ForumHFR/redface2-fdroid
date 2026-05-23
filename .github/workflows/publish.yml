@@ -39,12 +39,23 @@ jobs:
         with:
           ref: gh-pages
 
-      - name: Install fdroidserver
+      - name: Install fdroidserver from PyPI
+        # `apt install fdroidserver` on Ubuntu 24.04 ships 2.2.1 which bundles an
+        # old androguard that chokes on APKs built with AGP 9.x
+        # (`ResParserError: res1 must be zero!`). PyPI's fdroidserver 2.4.x
+        # carries a patched androguard that handles modern resources.arsc.
         run: |
           sudo apt-get update -qq
-          # default-jdk-headless brings jarsigner ; the -jre- variant doesn't.
+          # System Java + apksigner are still needed (fdroidserver shells out
+          # to jarsigner/apksigner) ; we just upgrade the Python package itself.
           sudo apt-get install -y --no-install-recommends \
-            fdroidserver default-jdk-headless apksigner
+            default-jdk-headless apksigner
+          # Use a venv to avoid PEP 668 ; symlink fdroid into PATH for convenience.
+          python3 -m venv /opt/fdroid-venv
+          /opt/fdroid-venv/bin/pip install --quiet --upgrade pip
+          /opt/fdroid-venv/bin/pip install --quiet fdroidserver
+          sudo ln -s /opt/fdroid-venv/bin/fdroid /usr/local/bin/fdroid
+          fdroid --version | head -1
 
       - name: Restore F-Droid keystore
         env:
@@ -94,11 +105,19 @@ jobs:
             --dir repo/
 
       - name: Run fdroid update
+        # `set -o pipefail` is critical — without it, a `tail -30` would mask a
+        # fdroid update failure (the pipe's exit code defaults to tail's
+        # which is always 0). We also drop the tail wrapping for the
+        # `--pretty` output and rely on GitHub Actions to truncate the log
+        # naturally if it grows too long. Full output is more useful than a
+        # silently-failing summary.
+        shell: bash
         run: |
+          set -euo pipefail
           # `fdroid update` reads config.yml from the working directory.
           # `--delete-unknown` removes APKs no longer referenced by metadata,
           # keeping `repo/` lean even after many releases.
-          fdroid update --create-metadata --delete-unknown --pretty 2>&1 | tail -30
+          fdroid update --create-metadata --delete-unknown --pretty
 
       - name: Clean keystore from runner
         if: always()
