@@ -42,8 +42,9 @@ jobs:
       - name: Install fdroidserver
         run: |
           sudo apt-get update -qq
+          # default-jdk-headless brings jarsigner ; the -jre- variant doesn't.
           sudo apt-get install -y --no-install-recommends \
-            fdroidserver default-jre-headless apksigner
+            fdroidserver default-jdk-headless apksigner
 
       - name: Restore F-Droid keystore
         env:
@@ -51,6 +52,34 @@ jobs:
         run: |
           echo "$KEYSTORE_B64" | base64 -d > fdroid.keystore
           chmod 600 fdroid.keystore
+
+      - name: Write CI-only config.yml
+        env:
+          KEY_ALIAS_VALUE: ${{ secrets.FDROID_KEY_ALIAS }}
+          KEYSTOREPASS_VALUE: ${{ secrets.FDROID_KEY_PASSWORD }}
+        run: |
+          # Same rationale as in bootstrap.yml : config.yml carries the
+          # signing creds inline (F-Droid upstream convention), it lives only
+          # on the ephemeral runner, and the push step is restricted to
+          # `repo/` so config.yml never lands in any commit.
+          umask 077
+          cat > config.yml <<YAML
+          repo_url: https://forumhfr.github.io/redface2-fdroid/repo
+          repo_name: Redface 2 F-Droid repository
+          repo_description: |-
+            Dépôt F-Droid pour Redface 2, le client Android moderne de
+            forum.hardware.fr. APKs signés avec la clé upload d'origine ;
+            mises à jour publiées automatiquement à chaque release upstream.
+          archive_older: 5
+          archive_url: https://forumhfr.github.io/redface2-fdroid/archive
+          archive_name: Redface 2 archive
+          archive_description: Anciennes versions de Redface 2.
+          keystore: fdroid.keystore
+          repo_keyalias: ${KEY_ALIAS_VALUE}
+          keystorepass: ${KEYSTOREPASS_VALUE}
+          keypass: ${KEYSTOREPASS_VALUE}
+          YAML
+          chmod 600 config.yml
 
       - name: Download APK from redface2 Release
         env:
@@ -65,13 +94,8 @@ jobs:
             --dir repo/
 
       - name: Run fdroid update
-        env:
-          KEYSTOREPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
-          KEYPASS: ${{ secrets.FDROID_KEY_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.FDROID_KEY_ALIAS }}
         run: |
-          # `fdroid update` reads config.yml from the working directory ; the
-          # keystore path is hardcoded to `fdroid.keystore` (cf. config.yml).
+          # `fdroid update` reads config.yml from the working directory.
           # `--delete-unknown` removes APKs no longer referenced by metadata,
           # keeping `repo/` lean even after many releases.
           fdroid update --create-metadata --delete-unknown --pretty 2>&1 | tail -30

@@ -32,8 +32,9 @@ jobs:
       - name: Install fdroidserver
         run: |
           sudo apt-get update -qq
+          # default-jdk-headless brings jarsigner ; the -jre- variant doesn't.
           sudo apt-get install -y --no-install-recommends \
-            fdroidserver default-jre-headless apksigner
+            fdroidserver default-jdk-headless apksigner
 
       - name: Restore F-Droid keystore
         env:
