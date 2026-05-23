@@ -1,0 +1,20 @@
+{
+  "repo": {
+    "name": {
+      "en-US": "Redface 2 F-Droid repository"
+    },
+    "description": {
+      "en-US": "Dépôt F-Droid pour Redface 2, le client Android moderne de\nforum.hardware.fr. APKs signés avec la clé upload d'origine ;\nmises à jour publiées automatiquement à chaque release upstream."
+    },
+    "icon": {
+      "en-US": {
+        "name": "/icons/icon.png",
+        "sha256": "9d31e644b3a749a90c045562748fbd4466ac63e59a2d4766fa03086534a8f32e",
+        "size": 849
+      }
+    },
+    "address": "https://forumhfr.github.io/redface2-fdroid/repo",
+    "timestamp": 1779542461000
+  },
+  "packages": {}
+}
