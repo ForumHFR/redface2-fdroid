@@ -8,10 +8,10 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1779544968767,
+  "endTimestamp": 1779545127719,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "ffa02f5b3f0401f83cbdae709e1ba392e6ad6859",
+    "commitId": "b1d21f8df5c0d6f39eab13de02da4dd9c8f11a64",
     "isDirty": false,
     "modifiedFiles": [],
     "untrackedFiles": [
@@ -22,29 +22,26 @@
   "jarsigner": "/usr/lib/jvm/java-21-openjdk-amd64/bin/jarsigner",
   "keytool": "/usr/lib/jvm/java-21-openjdk-amd64/bin/keytool",
   "needsUpdate": [
-    "57ffa9cc351517bd0e1f785aad5e9477a428d53b578c7115f522d4774008202c",
     "fr.forumhfr.redface2"
   ],
   "noPackages": [
-    "57ffa9cc351517bd0e1f785aad5e9477a428d53b578c7115f522d4774008202c",
     "fr.forumhfr.redface2"
   ],
   "noUpdateCheck": [
-    "57ffa9cc351517bd0e1f785aad5e9477a428d53b578c7115f522d4774008202c",
     "fr.forumhfr.redface2"
   ],
   "stages": {
-    "archive_old_apks archive": 1779544962285,
-    "delete_disabled_builds": 1779544961562,
-    "index.make archive": 1779544962285,
-    "index.make repo": 1779544965732,
-    "prepare_apps archive": 1779544962285,
-    "prepare_apps repo": 1779544965731,
-    "process_apks": 1779544961563,
-    "read_added_date_from_all_apks": 1779544962284,
-    "remove_apks": 1779544962284,
-    "scan_repo_files": 1779544962283
+    "archive_old_apks archive": 1779545121738,
+    "delete_disabled_builds": 1779545121105,
+    "index.make archive": 1779545121739,
+    "index.make repo": 1779545124887,
+    "prepare_apps archive": 1779545121739,
+    "prepare_apps repo": 1779545124886,
+    "process_apks": 1779545121105,
+    "read_added_date_from_all_apks": 1779545121738,
+    "remove_apks": 1779545121737,
+    "scan_repo_files": 1779545121736
   },
-  "startTimestamp": 1779544961000,
+  "startTimestamp": 1779545120000,
   "subcommand": "update"
 }

@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1779544965000,
+    "timestamp": 1779545124000,
     "version": 20002,
     "name": "Redface 2 F-Droid repository",
     "icon": "icon.png",
@@ -12,17 +12,6 @@
     "uninstall": []
   },
   "apps": [
-    {
-      "categories": [
-        "redface2-fdroid"
-      ],
-      "suggestedVersionCode": "2147483647",
-      "license": "Unknown",
-      "name": "categories",
-      "added": 1779544675000,
-      "packageName": "57ffa9cc351517bd0e1f785aad5e9477a428d53b578c7115f522d4774008202c",
-      "lastUpdated": 1779544675000
-    },
     {
       "authorName": "ForumHFR",
       "categories": [
@@ -43,17 +32,6 @@
     }
   ],
   "packages": {
-    "57ffa9cc351517bd0e1f785aad5e9477a428d53b578c7115f522d4774008202c": [
-      {
-        "added": 1779544675000,
-        "apkName": "categories.txt",
-        "hash": "57ffa9cc351517bd0e1f785aad5e9477a428d53b578c7115f522d4774008202c",
-        "hashType": "sha256",
-        "packageName": "57ffa9cc351517bd0e1f785aad5e9477a428d53b578c7115f522d4774008202c",
-        "size": 9,
-        "versionName": "57ffa9c"
-      }
-    ],
     "fr.forumhfr.redface2": [
       {
         "added": 1779544675000,
