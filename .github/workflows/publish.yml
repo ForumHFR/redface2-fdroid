@@ -61,6 +61,15 @@ jobs:
           [[ "$apk"     =~ ^[A-Za-z0-9._-]+\.apk$ ]]        || { echo "::error::Bad apk_filename '$apk'"; exit 1; }
           [[ "$pkg"     =~ ^fr\.forumhfr\.redface2(\.beta|\.dev)?$ ]] || { echo "::error::Bad package_name '$pkg'"; exit 1; }
           [[ "$channel" =~ ^(beta|dev|release)$ ]]          || { echo "::error::Bad channel '$channel'"; exit 1; }
+          # channel ↔ package_name must agree (Codex P2): metadata is keyed by package, so a beta/dev
+          # publish left at the base default would create metadata for the wrong package and the APK
+          # (whose real applicationId is .beta/.dev) would be indexed without its intended Name.
+          case "$channel" in
+            beta)    want_pkg=fr.forumhfr.redface2.beta;;
+            dev)     want_pkg=fr.forumhfr.redface2.dev;;
+            release) want_pkg=fr.forumhfr.redface2;;
+          esac
+          [[ "$pkg" == "$want_pkg" ]] || { echo "::error::channel '$channel' ↔ package_name '$pkg' mismatch (expected $want_pkg)"; exit 1; }
           {
             echo "tag=$tag"
             echo "apk_filename=$apk"
