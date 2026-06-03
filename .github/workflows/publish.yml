@@ -1,21 +1,31 @@
 name: Publish APK to F-Droid repo
 
 # Listens for a `repository_dispatch` event of type `rf2_release` fired by the
-# `redface2` release workflow when a new `app-v*` tag has been built. The
-# payload carries the tag name + the asset filename so we can download the
-# matching APK from `redface2`'s GitHub Release without doing API discovery.
+# `redface2` release workflow when a new release/dev build is produced. The payload
+# carries the release tag, the APK asset filename, and (since #233) the channel +
+# package_name so we can publish coexisting F-Droid packages (.beta / .dev / base)
+# from a single repo. We download the matching APK from the redface2 GitHub Release
+# (tag + filename) without API discovery; fdroidserver reads the package from the APK.
 on:
   repository_dispatch:
     types: [rf2_release]
-  # Manual trigger to allow a one-shot republish without re-tagging redface2.
+  # Manual trigger to allow a one-shot republish without re-firing redface2's CD.
   workflow_dispatch:
     inputs:
       tag:
-        description: 'redface2 release tag (e.g. app-v52)'
+        description: 'redface2 release tag (e.g. app-v72 or app-dev-v123)'
         required: true
       apk_filename:
         description: 'APK asset filename in the release'
         required: true
+      package_name:
+        description: 'applicationId (fr.forumhfr.redface2[.beta|.dev])'
+        required: false
+        default: 'fr.forumhfr.redface2'
+      channel:
+        description: 'beta | dev | release'
+        required: false
+        default: 'release'
 
 jobs:
   publish:
@@ -25,14 +35,48 @@ jobs:
     steps:
       - name: Resolve inputs
         id: inputs
+        shell: bash
+        # Payload/inputs through env, NEVER interpolated into the script body, then validated against
+        # strict charsets BEFORE reaching $GITHUB_OUTPUT (a newline/metachar could inject extra output
+        # lines or shell commands downstream). package_name/channel default to the base/release values
+        # so a pre-#233 dispatch still works.
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CP_TAG: ${{ github.event.client_payload.tag }}
+          CP_APK: ${{ github.event.client_payload.apk_filename }}
+          CP_PKG: ${{ github.event.client_payload.package_name }}
+          CP_CHANNEL: ${{ github.event.client_payload.channel }}
+          IN_TAG: ${{ github.event.inputs.tag }}
+          IN_APK: ${{ github.event.inputs.apk_filename }}
+          IN_PKG: ${{ github.event.inputs.package_name }}
+          IN_CHANNEL: ${{ github.event.inputs.channel }}
         run: |
-          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            echo "tag=${{ github.event.client_payload.tag }}" >> "$GITHUB_OUTPUT"
-            echo "apk_filename=${{ github.event.client_payload.apk_filename }}" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            tag="$CP_TAG"; apk="$CP_APK"; pkg="${CP_PKG:-fr.forumhfr.redface2}"; channel="${CP_CHANNEL:-release}"
           else
-            echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
-            echo "apk_filename=${{ github.event.inputs.apk_filename }}" >> "$GITHUB_OUTPUT"
+            tag="$IN_TAG"; apk="$IN_APK"; pkg="${IN_PKG:-fr.forumhfr.redface2}"; channel="${IN_CHANNEL:-release}"
           fi
+          [[ "$tag"     =~ ^app(-dev)?-v[A-Za-z0-9._-]+$ ]] || { echo "::error::Bad tag '$tag'"; exit 1; }
+          [[ "$apk"     =~ ^[A-Za-z0-9._-]+\.apk$ ]]        || { echo "::error::Bad apk_filename '$apk'"; exit 1; }
+          [[ "$pkg"     =~ ^fr\.forumhfr\.redface2(\.beta|\.dev)?$ ]] || { echo "::error::Bad package_name '$pkg'"; exit 1; }
+          [[ "$channel" =~ ^(beta|dev|release)$ ]]          || { echo "::error::Bad channel '$channel'"; exit 1; }
+          # channel ↔ package_name must agree (Codex P2): metadata is keyed by package, so a beta/dev
+          # publish left at the base default would create metadata for the wrong package and the APK
+          # (whose real applicationId is .beta/.dev) would be indexed without its intended Name.
+          case "$channel" in
+            beta)    want_pkg=fr.forumhfr.redface2.beta;;
+            dev)     want_pkg=fr.forumhfr.redface2.dev;;
+            release) want_pkg=fr.forumhfr.redface2;;
+          esac
+          [[ "$pkg" == "$want_pkg" ]] || { echo "::error::channel '$channel' ↔ package_name '$pkg' mismatch (expected $want_pkg)"; exit 1; }
+          {
+            echo "tag=$tag"
+            echo "apk_filename=$apk"
+            echo "package_name=$pkg"
+            echo "channel=$channel"
+          } >> "$GITHUB_OUTPUT"
+          echo "::notice title=F-Droid publish::tag=$tag pkg=$pkg channel=$channel apk=$apk"
 
       - name: Checkout gh-pages
         uses: actions/checkout@v4
@@ -134,16 +178,25 @@ jobs:
             -print -delete || true
 
       - name: Ensure app metadata exists
-        # fdroidserver 2.4+ refuses to generate the index if `repo/categories.txt`
-        # is zero-size (or if no app declares a category). The metadata file
-        # below populates both — it's idempotent and only written once per
-        # workflow run (subsequent runs are no-ops if the file already
-        # exists). Manual edits to the metadata are preserved on re-runs
-        # since we use `[[ -f ]]` gate.
+        # fdroidserver 2.4+ refuses to generate the index if `repo/categories.txt` is zero-size (or if
+        # no app declares a category). One metadata file PER package_name (since #233 we host coexisting
+        # .beta / .dev / base packages), with a channel-specific Name so the F-Droid client shows
+        # "Redface 2 β" / "Redface 2 dev" / "Redface 2". Idempotent: written once per package (the
+        # `[[ -f ]]` gate preserves manual edits and prior runs).
+        env:
+          PACKAGE_NAME: ${{ steps.inputs.outputs.package_name }}
+          CHANNEL: ${{ steps.inputs.outputs.channel }}
         run: |
+          set -euo pipefail
           mkdir -p metadata
-          if [[ ! -f metadata/fr.forumhfr.redface2.yml ]]; then
-            cat > metadata/fr.forumhfr.redface2.yml <<'YAML'
+          case "$CHANNEL" in
+            beta) NAME="Redface 2 β";   NOTE=" Version bêta (pré-1.0) : susceptible de contenir des bugs.";;
+            dev)  NAME="Redface 2 dev"; NOTE=" Canal dev : builds bleeding-edge, instables.";;
+            *)    NAME="Redface 2";     NOTE="";;
+          esac
+          meta="metadata/${PACKAGE_NAME}.yml"
+          if [[ ! -f "$meta" ]]; then
+            cat > "$meta" <<YAML
           Categories:
             - Internet
           License: GPL-3.0-only
@@ -152,14 +205,14 @@ jobs:
           SourceCode: https://github.com/ForumHFR/redface2
           IssueTracker: https://github.com/ForumHFR/redface2/issues
           Changelog: https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md
-          Name: Redface 2
+          Name: ${NAME}
           Summary: Client Android moderne du forum hardware.fr
           Description: |-
               Redface 2 est un client Android natif pour forum.hardware.fr,
               écrit en Kotlin avec Jetpack Compose. Lecture des topics,
               écriture (reply, quote, édition), recherche, drapeaux.
               Conçu pour remplacer l'app Redface historique sans dépendance
-              Firebase ni Play Services.
+              Firebase ni Play Services.${NOTE}
           YAML
           fi
 
