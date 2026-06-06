@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1780767782000,
+    "timestamp": 1780770305000,
     "version": 20002,
     "name": "Redface 2 F-Droid repository",
     "icon": "icon.png",
@@ -36,7 +36,7 @@
         "Internet"
       ],
       "changelog": "https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md",
-      "suggestedVersionCode": "74",
+      "suggestedVersionCode": "75",
       "description": "Redface 2 est un client Android natif pour forum.hardware.fr,\n\u00e9crit en Kotlin avec Jetpack Compose. Lecture des topics,\n\u00e9criture (reply, quote, \u00e9dition), recherche, drapeaux.\nCon\u00e7u pour remplacer l'app Redface historique sans d\u00e9pendance\nFirebase ni Play Services. Canal dev : builds bleeding-edge, instables.",
       "issueTracker": "https://github.com/ForumHFR/redface2/issues",
       "license": "GPL-3.0-only",
@@ -46,7 +46,7 @@
       "webSite": "https://github.com/ForumHFR/redface2",
       "added": 1780490517000,
       "packageName": "fr.forumhfr.redface2.dev",
-      "lastUpdated": 1780767777000
+      "lastUpdated": 1780770300000
     }
   ],
   "packages": {
@@ -203,6 +203,36 @@
       }
     ],
     "fr.forumhfr.redface2.dev": [
+      {
+        "added": 1780770300000,
+        "apkName": "redface2-fdroid-dev-v75-7ad8cb7.apk",
+        "hash": "4c27ce324eea0357209a3e9171bb8a087b54216ba7d404a818311aa550933010",
+        "hashType": "sha256",
+        "minSdkVersion": 29,
+        "nativecode": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86",
+          "x86_64"
+        ],
+        "packageName": "fr.forumhfr.redface2.dev",
+        "sig": "c36b0d8cb6d5fe8a493ad8cc6adba68a",
+        "signer": "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a",
+        "size": 30467082,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "fr.forumhfr.redface2.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ],
+          [
+            "android.permission.INTERNET",
+            null
+          ]
+        ],
+        "versionCode": 75,
+        "versionName": "0.4.0"
+      },
       {
         "added": 1780767777000,
         "apkName": "redface2-fdroid-dev-v74-693b567.apk",
