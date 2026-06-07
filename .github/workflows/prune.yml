@@ -1,0 +1,148 @@
+name: Prune a version from the F-Droid repo
+
+# Removes a single APK from the F-Droid repo (gh-pages) and regenerates the
+# SIGNED index, so a superseded build no longer appears in the F-Droid version
+# history. Use case: two builds were shipped under the same versionName (e.g.
+# app-v84 and app-v85 both `0.5.0`) → F-Droid shows two identical "0.5.0"
+# entries. Pruning the older APK keeps only the latest. Manual only.
+#
+# Mirrors publish.yml's fdroidserver install + keystore handling. The index is
+# re-signed with the same FDROID_KEYSTORE → the repo fingerprint is unchanged.
+on:
+  workflow_dispatch:
+    inputs:
+      apk_filename:
+        description: 'APK filename to remove from repo/ (e.g. redface2-fdroid-beta-v84-967f03a.apk)'
+        required: true
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to push to gh-pages
+    steps:
+      - name: Resolve input
+        id: inputs
+        shell: bash
+        # Input through env, never interpolated into the script body, then validated against a strict
+        # charset BEFORE reaching $GITHUB_OUTPUT (same hardening as publish.yml).
+        env:
+          IN_APK: ${{ github.event.inputs.apk_filename }}
+        run: |
+          set -euo pipefail
+          apk="$IN_APK"
+          [[ "$apk" =~ ^[A-Za-z0-9._-]+\.apk$ ]] || { echo "::error::Bad apk_filename '$apk'"; exit 1; }
+          echo "apk_filename=$apk" >> "$GITHUB_OUTPUT"
+          echo "::notice title=F-Droid prune::apk=$apk"
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Install fdroidserver from PyPI
+        # Same rationale as publish.yml: PyPI fdroidserver 2.4.x with androguard
+        # PINNED to 4.1.3 (4.1.4 breaks fdroidserver 2.4.4's NoOverwriteDict patch).
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            default-jdk-headless apksigner
+          python3 -m venv /opt/fdroid-venv
+          /opt/fdroid-venv/bin/pip install --quiet --upgrade pip
+          /opt/fdroid-venv/bin/pip install --quiet fdroidserver 'androguard==4.1.3'
+          sudo ln -s /opt/fdroid-venv/bin/fdroid /usr/local/bin/fdroid
+          fdroid --version | head -1
+
+      - name: Restore F-Droid keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.FDROID_KEYSTORE_B64 }}
+        run: |
+          echo "$KEYSTORE_B64" | base64 -d > fdroid.keystore
+          chmod 600 fdroid.keystore
+
+      - name: Write CI-only config.yml
+        env:
+          KEY_ALIAS_VALUE: ${{ secrets.FDROID_KEY_ALIAS }}
+          KEYSTOREPASS_VALUE: ${{ secrets.FDROID_KEY_PASSWORD }}
+        run: |
+          # Identical to publish.yml: config.yml holds signing creds inline, lives only on the
+          # ephemeral runner, and the push step is restricted to repo/ so it never lands in a commit.
+          umask 077
+          cat > config.yml <<YAML
+          repo_url: https://forumhfr.github.io/redface2-fdroid/repo
+          repo_name: Redface 2 F-Droid repository
+          repo_description: |-
+            Dépôt F-Droid pour Redface 2, le client Android moderne de
+            forum.hardware.fr. APKs signés avec la clé upload d'origine ;
+            mises à jour publiées automatiquement à chaque release upstream.
+          archive_older: 5
+          archive_url: https://forumhfr.github.io/redface2-fdroid/archive
+          archive_name: Redface 2 archive
+          archive_description: Anciennes versions de Redface 2.
+          keystore: fdroid.keystore
+          repo_keyalias: ${KEY_ALIAS_VALUE}
+          keystorepass: ${KEYSTOREPASS_VALUE}
+          keypass: ${KEYSTOREPASS_VALUE}
+          YAML
+          chmod 600 config.yml
+
+      - name: Seed categories.txt if empty
+        # fdroidserver 2.4+ refuses to run if repo/categories.txt is zero-size.
+        run: |
+          if [[ ! -s repo/categories.txt ]]; then
+            mkdir -p repo
+            echo "Internet" > repo/categories.txt
+          fi
+
+      - name: Remove the APK
+        env:
+          APK: ${{ steps.inputs.outputs.apk_filename }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="repo/${APK}"
+          if [[ ! -f "$target" ]]; then
+            echo "::error::APK not found in repo/: ${APK} — nothing to prune."
+            echo "Present APKs:"; ls -1 repo/*.apk 2>/dev/null || true
+            exit 1
+          fi
+          rm -v "$target"
+          # Drop any sidecar files fdroidserver may have written next to the APK.
+          rm -fv "repo/${APK}.asc" "repo/${APK}.sig" || true
+
+      - name: Run fdroid update
+        # Regenerates and re-signs the index from the APKs that REMAIN in repo/.
+        # No --delete-unknown (we removed the target manually) and no
+        # --create-metadata (canonical metadata already exists on gh-pages).
+        shell: bash
+        run: |
+          set -euo pipefail
+          fdroid update --pretty
+
+      - name: Post-update snapshot
+        if: always()
+        run: |
+          echo "=== repo/ APKs ==="
+          ls -1 repo/*.apk 2>/dev/null || echo "(none)"
+
+      - name: Clean keystore from runner
+        if: always()
+        run: shred -uvz fdroid.keystore || rm -f fdroid.keystore
+
+      - name: Commit and push gh-pages
+        env:
+          APK: ${{ steps.inputs.outputs.apk_filename }}
+        run: |
+          set -euo pipefail
+          git config user.email "fdroid-bot@users.noreply.github.com"
+          git config user.name "redface2-fdroid-publisher"
+          git add -A repo/
+          echo "=== diff --cached --stat ==="
+          git diff --cached --stat | tail -10
+          if git diff --cached --quiet; then
+            echo "No index change — the APK was not present in the index."
+          else
+            git commit -m "fdroid: prune ${APK} from repo"
+            git push origin gh-pages
+            echo "Pruned ${APK} and pushed gh-pages."
+          fi
