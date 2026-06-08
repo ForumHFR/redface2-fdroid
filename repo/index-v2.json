@@ -14,7 +14,7 @@
       }
     },
     "address": "https://forumhfr.github.io/redface2-fdroid/repo",
-    "timestamp": 1780945504000,
+    "timestamp": 1780954554000,
     "categories": {
       "Internet": {
         "name": {
@@ -234,7 +234,7 @@
         ],
         "changelog": "https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md",
         "issueTracker": "https://github.com/ForumHFR/redface2/issues",
-        "lastUpdated": 1780867852000,
+        "lastUpdated": 1780954547000,
         "license": "GPL-3.0-only",
         "sourceCode": "https://github.com/ForumHFR/redface2",
         "webSite": "https://github.com/ForumHFR/redface2",
@@ -251,6 +251,41 @@
         "preferredSigner": "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a"
       },
       "versions": {
+        "9ba183fafc83389df722d97671ebee0315beca2cba6ed19f99588ffd9d78d4e1": {
+          "added": 1780954547000,
+          "file": {
+            "name": "/redface2-fdroid-beta-v92-5c6c659.apk",
+            "sha256": "9ba183fafc83389df722d97671ebee0315beca2cba6ed19f99588ffd9d78d4e1",
+            "size": 30883914
+          },
+          "manifest": {
+            "nativecode": [
+              "arm64-v8a",
+              "armeabi-v7a",
+              "x86",
+              "x86_64"
+            ],
+            "versionName": "0.6.0",
+            "versionCode": 92,
+            "usesSdk": {
+              "minSdkVersion": 29,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "fr.forumhfr.redface2.beta.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              },
+              {
+                "name": "android.permission.INTERNET"
+              }
+            ]
+          }
+        },
         "27155132a26fe635540230d1b24628fe2c4de1ce5749fefad4fb4687ad898199": {
           "added": 1780867852000,
           "file": {
@@ -325,7 +360,7 @@
     },
     "fr.forumhfr.redface2.dev": {
       "metadata": {
-        "added": 1780856179000,
+        "added": 1780875946000,
         "categories": [
           "Internet"
         ],
