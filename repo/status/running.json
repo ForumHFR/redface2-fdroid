@@ -8,16 +8,16 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1781729777579,
+  "endTimestamp": 1781738872972,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "5cd02ae7efa486333ddbf0a95bd3482e94c89561",
+    "commitId": "bf900e3e93f9d95a316a2aa084b26435d1308bde",
     "isDirty": false,
     "modifiedFiles": [],
     "untrackedFiles": [
       "config.yml",
       "fdroid.keystore",
-      "repo/redface2-fdroid-dev-v155-e84720f.apk"
+      "repo/redface2-fdroid-beta-v156-182c4fb.apk"
     ]
   },
   "jarsigner": "/usr/lib/jvm/java-21-openjdk-amd64/bin/jarsigner",
@@ -38,17 +38,17 @@
     "fr.forumhfr.redface2"
   ],
   "stages": {
-    "archive_old_apks archive": 1781729772704,
-    "delete_disabled_builds": 1781729767468,
-    "index.make archive": 1781729772705,
-    "index.make repo": 1781729775147,
-    "prepare_apps archive": 1781729772704,
-    "prepare_apps repo": 1781729775146,
-    "process_apks": 1781729767469,
-    "read_added_date_from_all_apks": 1781729772703,
-    "remove_apks": 1781729772702,
-    "scan_repo_files": 1781729772702
+    "archive_old_apks archive": 1781738866670,
+    "delete_disabled_builds": 1781738859948,
+    "index.make archive": 1781738866672,
+    "index.make repo": 1781738869932,
+    "prepare_apps archive": 1781738866671,
+    "prepare_apps repo": 1781738869931,
+    "process_apks": 1781738859948,
+    "read_added_date_from_all_apks": 1781738866670,
+    "remove_apks": 1781738866669,
+    "scan_repo_files": 1781738866668
   },
-  "startTimestamp": 1781729766000,
+  "startTimestamp": 1781738859000,
   "subcommand": "update"
 }
