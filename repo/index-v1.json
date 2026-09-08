@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1788886763000,
+    "timestamp": 1788886942000,
     "version": 20002,
     "name": "Redface 2 F-Droid repository",
     "icon": "icon.png",
@@ -26,7 +26,7 @@
       "sourceCode": "https://github.com/ForumHFR/redface2",
       "summary": "Client Android moderne du forum hardware.fr",
       "webSite": "https://github.com/ForumHFR/redface2",
-      "added": 1780155870000,
+      "added": 1780212578000,
       "packageName": "fr.forumhfr.redface2",
       "lastUpdated": 1780221788000
     },
@@ -128,36 +128,6 @@
         ],
         "versionCode": 67,
         "versionName": "0.3.27"
-      },
-      {
-        "added": 1780155870000,
-        "apkName": "redface2-v66-4d5919e.apk",
-        "hash": "cfef83a3521ca2fd133bae6857bc6d8b25b71d61488ff4da9863fca9d29d2eb0",
-        "hashType": "sha256",
-        "minSdkVersion": 29,
-        "nativecode": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86",
-          "x86_64"
-        ],
-        "packageName": "fr.forumhfr.redface2",
-        "sig": "c36b0d8cb6d5fe8a493ad8cc6adba68a",
-        "signer": "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a",
-        "size": 30263938,
-        "targetSdkVersion": 36,
-        "uses-permission": [
-          [
-            "fr.forumhfr.redface2.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
-            null
-          ],
-          [
-            "android.permission.INTERNET",
-            null
-          ]
-        ],
-        "versionCode": 66,
-        "versionName": "0.3.26"
       }
     ],
     "fr.forumhfr.redface2.beta": [
