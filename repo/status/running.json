@@ -8,13 +8,13 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1788887079876,
+  "endTimestamp": 1788887251816,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "a74110c8c2b228003a85769e70fa411739f04d01",
+    "commitId": "61c89b19eeda15f4ad76e358da38783ba82050f9",
     "isDirty": true,
     "modifiedFiles": [
-      "repo/redface2-v67-190070a.apk"
+      "repo/redface2-v68-d1147bc.apk"
     ],
     "untrackedFiles": [
       "config.yml",
@@ -25,31 +25,28 @@
   "keytool": "/usr/lib/jvm/java-21-openjdk-amd64/bin/keytool",
   "needsUpdate": [
     "fr.forumhfr.redface2.beta",
-    "fr.forumhfr.redface2.dev",
-    "fr.forumhfr.redface2"
+    "fr.forumhfr.redface2.dev"
   ],
   "noPackages": [
     "fr.forumhfr.redface2.beta",
-    "fr.forumhfr.redface2.dev",
-    "fr.forumhfr.redface2"
+    "fr.forumhfr.redface2.dev"
   ],
   "noUpdateCheck": [
     "fr.forumhfr.redface2.beta",
-    "fr.forumhfr.redface2.dev",
-    "fr.forumhfr.redface2"
+    "fr.forumhfr.redface2.dev"
   ],
   "stages": {
-    "archive_old_apks archive": 1788887073582,
-    "delete_disabled_builds": 1788887068403,
-    "index.make archive": 1788887073583,
-    "index.make repo": 1788887076837,
-    "prepare_apps archive": 1788887073582,
-    "prepare_apps repo": 1788887076836,
-    "process_apks": 1788887068403,
-    "read_added_date_from_all_apks": 1788887073581,
-    "remove_apks": 1788887073580,
-    "scan_repo_files": 1788887073579
+    "archive_old_apks archive": 1788887245429,
+    "delete_disabled_builds": 1788887240439,
+    "index.make archive": 1788887245430,
+    "index.make repo": 1788887248779,
+    "prepare_apps archive": 1788887245429,
+    "prepare_apps repo": 1788887248778,
+    "process_apks": 1788887240439,
+    "read_added_date_from_all_apks": 1788887245429,
+    "remove_apks": 1788887245427,
+    "scan_repo_files": 1788887245426
   },
-  "startTimestamp": 1788887067000,
+  "startTimestamp": 1788887240000,
   "subcommand": "update"
 }
