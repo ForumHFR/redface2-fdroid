@@ -1,5 +1,5 @@
 {
-  "/etc/issue.net": "Ubuntu 24.04.5 LTS",
+  "/etc/issue.net": "Ubuntu 24.04.4 LTS",
   "antiFeatures": {},
   "apksigner": "/usr/bin/apksigner",
   "archivePolicy0": [],
@@ -8,13 +8,13 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1788886945783,
+  "endTimestamp": 1788887079876,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "357425a474877d1f651e20651ca8cb559c0ec4fc",
+    "commitId": "a74110c8c2b228003a85769e70fa411739f04d01",
     "isDirty": true,
     "modifiedFiles": [
-      "repo/redface2-v66-4d5919e.apk"
+      "repo/redface2-v67-190070a.apk"
     ],
     "untrackedFiles": [
       "config.yml",
@@ -39,17 +39,17 @@
     "fr.forumhfr.redface2"
   ],
   "stages": {
-    "archive_old_apks archive": 1788886939274,
-    "delete_disabled_builds": 1788886933186,
-    "index.make archive": 1788886939275,
-    "index.make repo": 1788886942746,
-    "prepare_apps archive": 1788886939274,
-    "prepare_apps repo": 1788886942746,
-    "process_apks": 1788886933187,
-    "read_added_date_from_all_apks": 1788886939273,
-    "remove_apks": 1788886939272,
-    "scan_repo_files": 1788886939272
+    "archive_old_apks archive": 1788887073582,
+    "delete_disabled_builds": 1788887068403,
+    "index.make archive": 1788887073583,
+    "index.make repo": 1788887076837,
+    "prepare_apps archive": 1788887073582,
+    "prepare_apps repo": 1788887076836,
+    "process_apks": 1788887068403,
+    "read_added_date_from_all_apks": 1788887073581,
+    "remove_apks": 1788887073580,
+    "scan_repo_files": 1788887073579
   },
-  "startTimestamp": 1788886932000,
+  "startTimestamp": 1788887067000,
   "subcommand": "update"
 }
