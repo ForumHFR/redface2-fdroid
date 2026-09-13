@@ -14,7 +14,7 @@
       }
     },
     "address": "https://forumhfr.github.io/redface2-fdroid/repo",
-    "timestamp": 1789299568000,
+    "timestamp": 1789305626000,
     "categories": {
       "Internet": {
         "name": {
@@ -228,13 +228,13 @@
     },
     "fr.forumhfr.redface2.dev": {
       "metadata": {
-        "added": 1789250156000,
+        "added": 1789259555000,
         "categories": [
           "Internet"
         ],
         "changelog": "https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md",
         "issueTracker": "https://github.com/ForumHFR/redface2/issues",
-        "lastUpdated": 1789299564000,
+        "lastUpdated": 1789305622000,
         "license": "GPL-3.0-only",
         "sourceCode": "https://github.com/ForumHFR/redface2",
         "webSite": "https://github.com/ForumHFR/redface2",
@@ -251,6 +251,41 @@
         "preferredSigner": "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a"
       },
       "versions": {
+        "41328dbfa5faf0c122709c0dfa64c6e13a00c1532a73c9dc4f1d42b86ddce820": {
+          "added": 1789305622000,
+          "file": {
+            "name": "/redface2-fdroid-dev-v332-8961da62.apk",
+            "sha256": "41328dbfa5faf0c122709c0dfa64c6e13a00c1532a73c9dc4f1d42b86ddce820",
+            "size": 38178191
+          },
+          "manifest": {
+            "nativecode": [
+              "arm64-v8a",
+              "armeabi-v7a",
+              "x86",
+              "x86_64"
+            ],
+            "versionName": "0.57.7-dev.332",
+            "versionCode": 332,
+            "usesSdk": {
+              "minSdkVersion": 29,
+              "targetSdkVersion": 36
+            },
+            "signer": {
+              "sha256": [
+                "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a"
+              ]
+            },
+            "usesPermission": [
+              {
+                "name": "fr.forumhfr.redface2.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+              },
+              {
+                "name": "android.permission.INTERNET"
+              }
+            ]
+          }
+        },
         "56da6084087ad75b3c39528ed2e8c3c6bfebb79f478fafc90e4d5a8ad8320ef7": {
           "added": 1789299564000,
           "file": {
@@ -372,41 +407,6 @@
             ],
             "versionName": "0.57.3-dev.328",
             "versionCode": 328,
-            "usesSdk": {
-              "minSdkVersion": 29,
-              "targetSdkVersion": 36
-            },
-            "signer": {
-              "sha256": [
-                "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a"
-              ]
-            },
-            "usesPermission": [
-              {
-                "name": "fr.forumhfr.redface2.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-              },
-              {
-                "name": "android.permission.INTERNET"
-              }
-            ]
-          }
-        },
-        "f08b4e1d37571037af84e427c06e89cdc691bf31e78bf475e42a0e79c3d9c89f": {
-          "added": 1789259555000,
-          "file": {
-            "name": "/redface2-fdroid-dev-v327-3f9143dc.apk",
-            "sha256": "f08b4e1d37571037af84e427c06e89cdc691bf31e78bf475e42a0e79c3d9c89f",
-            "size": 38161251
-          },
-          "manifest": {
-            "nativecode": [
-              "arm64-v8a",
-              "armeabi-v7a",
-              "x86",
-              "x86_64"
-            ],
-            "versionName": "0.57.2-dev.327",
-            "versionCode": 327,
             "usesSdk": {
               "minSdkVersion": 29,
               "targetSdkVersion": 36
