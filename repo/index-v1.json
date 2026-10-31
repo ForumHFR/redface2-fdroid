@@ -1,6 +1,6 @@
 {
   "repo": {
-    "timestamp": 1793398122000,
+    "timestamp": 1793444210000,
     "version": 20002,
     "name": "Redface 2 F-Droid repository",
     "icon": "icon.png",
@@ -18,7 +18,7 @@
         "Internet"
       ],
       "changelog": "https://github.com/ForumHFR/redface2/blob/main/app/CHANGELOG.md",
-      "suggestedVersionCode": "358",
+      "suggestedVersionCode": "359",
       "description": "Redface 2 est un client Android natif pour forum.hardware.fr,\n\u00e9crit en Kotlin avec Jetpack Compose. Lecture des topics,\n\u00e9criture (reply, quote, \u00e9dition), recherche, drapeaux.\nCon\u00e7u pour remplacer l'app Redface historique sans d\u00e9pendance\nFirebase ni Play Services. Canal dev : builds bleeding-edge, instables.",
       "issueTracker": "https://github.com/ForumHFR/redface2/issues",
       "license": "GPL-3.0-only",
@@ -26,9 +26,9 @@
       "sourceCode": "https://github.com/ForumHFR/redface2",
       "summary": "Client Android moderne du forum hardware.fr",
       "webSite": "https://github.com/ForumHFR/redface2",
-      "added": 1793306126000,
+      "added": 1793308178000,
       "packageName": "fr.forumhfr.redface2.dev",
-      "lastUpdated": 1793398118000
+      "lastUpdated": 1793444206000
     },
     {
       "authorName": "ForumHFR",
@@ -204,6 +204,40 @@
     ],
     "fr.forumhfr.redface2.dev": [
       {
+        "added": 1793444206000,
+        "apkName": "redface2-fdroid-dev-v359-2aa82431.apk",
+        "hash": "f2b14025dd6bd1389325347cb2c75345d0eaf334c7e3a000c1093e7dbcc34f37",
+        "hashType": "sha256",
+        "minSdkVersion": 29,
+        "nativecode": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86",
+          "x86_64"
+        ],
+        "packageName": "fr.forumhfr.redface2.dev",
+        "sig": "c36b0d8cb6d5fe8a493ad8cc6adba68a",
+        "signer": "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a",
+        "size": 38973791,
+        "targetSdkVersion": 36,
+        "uses-permission": [
+          [
+            "android.permission.ACCESS_NETWORK_STATE",
+            null
+          ],
+          [
+            "fr.forumhfr.redface2.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+            null
+          ],
+          [
+            "android.permission.INTERNET",
+            null
+          ]
+        ],
+        "versionCode": 359,
+        "versionName": "0.64.9-dev.359"
+      },
+      {
         "added": 1793398118000,
         "apkName": "redface2-fdroid-dev-v358-d794e254.apk",
         "hash": "d49958d18a961ad0c183f6e18974e34f16b1de190bdedb9b0237f114db8bb2b2",
@@ -338,40 +372,6 @@
         ],
         "versionCode": 355,
         "versionName": "0.64.5-dev.355"
-      },
-      {
-        "added": 1793308178000,
-        "apkName": "redface2-fdroid-dev-v354-d5307203.apk",
-        "hash": "02ad5e5f24abff7dee759d0bce1105e4fba27ddc4de0ff99a099d72b17c791de",
-        "hashType": "sha256",
-        "minSdkVersion": 29,
-        "nativecode": [
-          "arm64-v8a",
-          "armeabi-v7a",
-          "x86",
-          "x86_64"
-        ],
-        "packageName": "fr.forumhfr.redface2.dev",
-        "sig": "c36b0d8cb6d5fe8a493ad8cc6adba68a",
-        "signer": "584a3389e28a06be4680b34293b75e6f16da1987c373c19e2c2e4b854ce4849a",
-        "size": 38767963,
-        "targetSdkVersion": 36,
-        "uses-permission": [
-          [
-            "android.permission.ACCESS_NETWORK_STATE",
-            null
-          ],
-          [
-            "fr.forumhfr.redface2.dev.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
-            null
-          ],
-          [
-            "android.permission.INTERNET",
-            null
-          ]
-        ],
-        "versionCode": 354,
-        "versionName": "0.64.4-dev.354"
       }
     ]
   }
