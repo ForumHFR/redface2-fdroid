@@ -1,5 +1,5 @@
 {
-  "/etc/issue.net": "Ubuntu 24.04.5 LTS",
+  "/etc/issue.net": "Ubuntu 26.04.1 LTS",
   "antiFeatures": {},
   "apksigner": "/usr/bin/apksigner",
   "archivePolicy0": [],
@@ -8,20 +8,20 @@
     "--pretty"
   ],
   "disabled": [],
-  "endTimestamp": 1793979918197,
+  "endTimestamp": 1794035291959,
   "failedBuilds": {},
   "fdroiddata": {
-    "commitId": "db3058f10622fd26eb23da61def84deeed1f408c",
+    "commitId": "6b5f69dd351ab113ffa423dd3dcf6fb35460feb0",
     "isDirty": false,
     "modifiedFiles": [],
     "untrackedFiles": [
       "config.yml",
       "fdroid.keystore",
-      "repo/redface2-fdroid-dev-v369-291346ff.apk"
+      "repo/redface2-fdroid-dev-v370-84c4a87b.apk"
     ]
   },
-  "jarsigner": "/usr/lib/jvm/java-21-openjdk-amd64/bin/jarsigner",
-  "keytool": "/usr/lib/jvm/java-21-openjdk-amd64/bin/keytool",
+  "jarsigner": "/usr/lib/jvm/java-25-openjdk-amd64/bin/jarsigner",
+  "keytool": "/usr/lib/jvm/java-25-openjdk-amd64/bin/keytool",
   "needsUpdate": [
     "fr.forumhfr.redface2.beta",
     "fr.forumhfr.redface2.dev"
@@ -35,17 +35,17 @@
     "fr.forumhfr.redface2.dev"
   ],
   "stages": {
-    "archive_old_apks archive": 1793979912922,
-    "delete_disabled_builds": 1793979908081,
-    "index.make archive": 1793979912924,
-    "index.make repo": 1793979915966,
-    "prepare_apps archive": 1793979912923,
-    "prepare_apps repo": 1793979915965,
-    "process_apks": 1793979908081,
-    "read_added_date_from_all_apks": 1793979912922,
-    "remove_apks": 1793979912921,
-    "scan_repo_files": 1793979912920
+    "archive_old_apks archive": 1794035286867,
+    "delete_disabled_builds": 1794035282552,
+    "index.make archive": 1794035286868,
+    "index.make repo": 1794035289632,
+    "prepare_apps archive": 1794035286868,
+    "prepare_apps repo": 1794035289631,
+    "process_apks": 1794035282554,
+    "read_added_date_from_all_apks": 1794035286867,
+    "remove_apks": 1794035286866,
+    "scan_repo_files": 1794035286865
   },
-  "startTimestamp": 1793979907000,
+  "startTimestamp": 1794035281000,
   "subcommand": "update"
 }
